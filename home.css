@@ -1,0 +1,235 @@
+# Bengal Islamic Heritage — Full-Stack Educational Platform
+
+A comprehensive, interactive educational website documenting Bengal's rich Islamic history and providing Islamic teachings resources, an AI chatbot, and a searchable superdatabase.
+
+---
+
+## 📁 Project Structure
+
+```
+bengal-islamic/
+│
+├── frontend/                  ← All frontend files (HTML/CSS/JS)
+│   ├── index.html             ← Homepage
+│   ├── css/
+│   │   ├── base.css           ← Design tokens, shared components
+│   │   └── home.css           ← Homepage-specific styles
+│   ├── js/
+│   │   ├── base.js            ← Navbar, scroll reveal, utilities
+│   │   ├── animations.js      ← Stars, counters, parallax, shimmer
+│   │   ├── api.js             ← Frontend API client
+│   │   ├── chat.js            ← AI chatbot UI + backend proxy calls
+│   │   └── home.js            ← Homepage page logic
+│   └── pages/
+│       ├── history.html       ← Interactive timeline
+│       ├── figures.html       ← Scholar/figure profiles
+│       ├── teachings.html     ← Islamic teachings sections
+│       ├── library.html       ← Book library
+│       └── database.html      ← Searchable superdatabase
+│
+├── backend/
+│   ├── server.js              ← Express.js main server
+│   └── routes/
+│       ├── entries.js         ← CRUD API for database entries
+│       ├── books.js           ← Books/resources API
+│       ├── chat.js            ← Claude AI proxy endpoint
+│       └── categories.js      ← Categories + eras API
+│
+├── database/
+│   └── schema.sql             ← Full database schema (SQLite/PostgreSQL)
+│
+├── docs/
+│   └── api.md                 ← API endpoint documentation
+│
+├── package.json               ← Node.js dependencies
+├── .env.example               ← Environment variable template
+└── README.md                  ← This file
+```
+
+---
+
+## 🚀 Quick Start (Local Development)
+
+### Prerequisites
+- Node.js 18+ ([nodejs.org](https://nodejs.org))
+- npm or yarn
+
+### Step 1 — Clone / Download
+```bash
+# If using Git:
+git clone https://github.com/your-org/bengal-islamic.git
+cd bengal-islamic
+
+# Or simply drag the folder to your project directory
+```
+
+### Step 2 — Install Dependencies
+```bash
+npm install
+```
+
+### Step 3 — Configure Environment
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Open .env and add your Anthropic API key:
+# ANTHROPIC_API_KEY=sk-ant-your-key-here
+```
+
+### Step 4 — Initialise Database
+```bash
+# Creates the SQLite database with seed data
+npm run db:init
+```
+
+### Step 5 — Start the Server
+```bash
+# Development mode (auto-restarts on file changes):
+npm run dev
+
+# Production mode:
+npm start
+```
+
+### Step 6 — Open in Browser
+```
+http://localhost:3001
+```
+
+---
+
+## 🌐 Drag-and-Drop Deployment
+
+### Option A: Static Frontend Only (No Backend)
+If you only want the frontend (no API, no AI chat):
+1. Open `frontend/index.html` directly in any browser — it works!
+2. The fallback static data in `api.js` will display automatically.
+3. Upload the `frontend/` folder to any static host (Netlify, Vercel, GitHub Pages).
+
+### Option B: Full Stack on Railway / Render
+1. Push the project to GitHub
+2. Create a new project on [Railway](https://railway.app) or [Render](https://render.com)
+3. Connect your GitHub repo
+4. Set environment variables (from `.env.example`) in the dashboard
+5. Deploy — done!
+
+### Option C: VPS / Server (Ubuntu)
+```bash
+# 1. Upload project via SFTP or git clone
+# 2. Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 3. Install dependencies
+npm install --production
+
+# 4. Set environment variables
+cp .env.example .env && nano .env
+
+# 5. Start with PM2 (process manager)
+npm install -g pm2
+pm2 start backend/server.js --name "bengal-islamic"
+pm2 startup && pm2 save
+
+# 6. Configure Nginx as reverse proxy (optional)
+# Point your domain to localhost:3001
+```
+
+---
+
+## 🎨 Design System
+
+| Token          | Value           | Usage               |
+|----------------|-----------------|---------------------|
+| `--gold`       | `#D4A843`       | Primary accent      |
+| `--jade`       | `#1B5E3A`       | Secondary accent    |
+| `--ink`        | `#0A0D08`       | Background          |
+| `--sand`       | `#F0E6C8`       | Body text           |
+| `--font-display` | Cinzel Decorative | Headlines        |
+| `--font-body`  | Cormorant Garamond | Prose             |
+| `--font-arabic`| Amiri           | Arabic text         |
+| `--font-ui`    | Rajdhani        | Labels, nav, UI     |
+
+---
+
+## 🔌 API Reference
+
+| Method | Endpoint              | Description                      |
+|--------|-----------------------|----------------------------------|
+| GET    | `/api/entries`        | Search & filter database entries  |
+| GET    | `/api/entries/:id`    | Get single entry by ID           |
+| POST   | `/api/entries`        | Create new entry                 |
+| PUT    | `/api/entries/:id`    | Update entry                     |
+| DELETE | `/api/entries/:id`    | Delete entry                     |
+| GET    | `/api/books`          | Get book library                 |
+| POST   | `/api/chat`           | Send message to AI Scholar       |
+| GET    | `/api/categories`     | Get all categories               |
+| GET    | `/api/health`         | Server health check              |
+
+**Search example:**
+```
+GET /api/entries?q=sufi&category=Scholar&era=Bengal+Sultanate&page=1&limit=12
+```
+
+---
+
+## 🤖 AI Chatbot
+
+The chatbot uses Claude (claude-sonnet-4-20250514) via a backend proxy.
+
+**Important:** The API key is stored in `.env` on the server — it is **never** sent to the frontend. All AI requests go:
+
+```
+Browser → POST /api/chat → backend/routes/chat.js → Anthropic API
+```
+
+The system prompt specialises Claude in:
+- Bengal Islamic history (8th century to present)
+- Five Pillars, Articles of Faith, Quran, Hadith
+- Seerah, Fiqh basics, Islamic ethics, Dawah
+
+---
+
+## 🗄️ Database Schema
+
+Eight interconnected tables:
+
+| Table           | Purpose                                  |
+|-----------------|------------------------------------------|
+| `entries`       | Core records: mosques, events, etc.      |
+| `scholars`      | Detailed figure profiles                 |
+| `books`         | Islamic book catalogue                   |
+| `sites`         | Mosques, shrines, madrasas               |
+| `events`        | Timeline events with precise dating      |
+| `manuscripts`   | Bengal Islamic manuscripts               |
+| `tags`          | Taxonomy tags                            |
+| `quran_verses`  | Quran verse reference table              |
+| `entries_fts`   | Full-text search index (SQLite FTS5)     |
+
+---
+
+## 📚 Recommended External Resources
+
+- **[Quran.com](https://quran.com)** — Quran with Bengali & English translations
+- **[Sunnah.com](https://sunnah.com)** — Complete Hadith collections
+- **[IslamQA.info](https://islamqa.info)** — 65,000+ Islamic Q&A
+- **[IslamHouse.com](https://islamhouse.com)** — Free Islamic books
+- **[Wikipedia — Bengal Sultanate](https://en.wikipedia.org/wiki/Bengal_Sultanate)** — History reference
+
+---
+
+## ✅ Checklist Before Going Live
+
+- [ ] Replace `ANTHROPIC_API_KEY` in `.env`
+- [ ] Change `FRONTEND_URL` for CORS in production
+- [ ] Run `npm run db:init` to create the database
+- [ ] Test `/api/health` endpoint
+- [ ] Configure HTTPS (required for production)
+- [ ] Replace placeholder social media links in footer
+- [ ] Update contact email in footer
+
+---
+
+*Built with care for the preservation of Bengal's Islamic heritage.*
+*All content is for educational purposes. Always consult qualified scholars for religious rulings.*
